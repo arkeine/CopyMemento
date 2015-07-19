@@ -8,7 +8,7 @@ template<typename T>
 CopyMemento<T>::CopyMemento()
 {
     max = 0;
-    current = 0;
+    currentObject = 0;
 }
 
 template<typename T>
@@ -29,22 +29,22 @@ void CopyMemento<T>::save(const T &o)
     qDeleteAll(stackRedo);
     stackRedo.clear();
 
-    if(current != 0)
+    if(currentObject != 0)
     {
-        stackUndo.push(current);
+        stackUndo.push(currentObject);
         aligneMaximum();
     }
 
-    current = new T(o);
+    currentObject = new T(o);
 }
 
 template<typename T>
 void CopyMemento<T>::clear()
 {
-    if(current != 0)
+    if(currentObject != 0)
     {
-        delete current;
-        current = 0;
+        delete currentObject;
+        currentObject = 0;
     }
 
     qDeleteAll(stackRedo);
@@ -72,13 +72,13 @@ T CopyMemento<T>::undo()
     Q_ASSERT_X(stackUndo.size() > 0, "undo",
                "CopyMemento undo list is empty");
 
-    if(current != 0)
+    if(currentObject != 0)
     {
-        stackRedo.push(current);
+        stackRedo.push(currentObject);
     }
 
-    current = stackUndo.pop();
-    return *current;
+    currentObject = stackUndo.pop();
+    return *currentObject;
 }
 
 template<typename T>
@@ -87,13 +87,20 @@ T CopyMemento<T>::redo()
     Q_ASSERT_X(stackRedo.size() > 0, "redo",
                "CopyMemento redo list is empty");
 
-    if(current != 0)
+    if(currentObject != 0)
     {
-        stackUndo.push(current);
+        stackUndo.push(currentObject);
     }
 
-    current = stackRedo.pop();
-    return *current;
+    currentObject = stackRedo.pop();
+    return *currentObject;
+}
+
+
+template<typename T>
+T CopyMemento::current() const
+{
+    return *currentObject;
 }
 
 template<typename T>
@@ -106,6 +113,12 @@ template<typename T>
 int CopyMemento<T>::redoCount() const
 {
     return stackRedo.size();
+}
+
+template<typename T>
+bool CopyMemento::hasCurrent() const
+{
+    return currentObject != 0;
 }
 
 /*============================================*/

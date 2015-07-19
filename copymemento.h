@@ -16,12 +16,14 @@ public:
     int maximumSaving() const;
     T undo();
     T redo();
+    T current() const;
     int undoCount() const;
     int redoCount() const;
+    bool hasCurrent() const;
 
 private:
     QStack<T*> stackUndo;
-    T *current;
+    T *currentObject;
     QStack<T*> stackRedo;
     int max;
 
